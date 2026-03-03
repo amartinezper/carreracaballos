@@ -7,61 +7,73 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="container">
-    <h1>🐎 Carrera de Caballos (Baraja Española)</h1>
-    <p class="muted">Automatización del juego: 2–4 jugadores, 7 checkpoints, avance por palo, retroceso al revelar.</p>
-  </header>
 
-  <main class="container grid">
-    <section class="card">
-      <h2>Configuración</h2>
+<header class="container">
+  <h1>🐎 Carrera de Caballos</h1>
+  <p class="muted">Baraja Española</p>
+</header>
 
-      <label class="row">
-        <span>Número de jugadores</span>
-        <select id="playersSelect">
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4" selected>4</option>
-        </select>
-      </label>
+<main class="container grid">
 
-      <div class="row gap">
-        <button id="btnStart">Iniciar juego</button>
-        <button id="btnReset" class="secondary">Reiniciar</button>
-      </div>
+  <section class="card">
+    <h2>Configuración</h2>
 
-      <hr />
+    <div class="row">
+      <span>Jugadores</span>
+      <select id="playersSelect">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+      </select>
+    </div>
 
-      <h2>Acciones</h2>
-      <div class="row gap">
-        <button id="btnDraw" disabled>Robar carta</button>
-        <button id="btnAuto" disabled class="secondary">Auto jugar</button>
-        <button id="btnStop" disabled class="secondary">Detener</button>
-      </div>
+    <div class="row gap">
+      <button id="btnStart">Iniciar</button>
+      <button id="btnReset" class="secondary">Reiniciar</button>
+    </div>
 
-      <div class="status">
-        <div><strong>Última carta:</strong> <span id="lastCard">—</span></div>
-        <div><strong>Ganador:</strong> <span id="winner">—</span></div>
-        <div><strong>Cartas restantes:</strong> <span id="remaining">—</span></div>
-      </div>
-    </section>
+    <hr/>
 
-    <section class="card">
-      <h2>Pista</h2>
-      <div id="track" class="track"></div>
+    <div class="row gap">
+      <button id="btnDraw" disabled>Robar carta</button>
+      <button id="btnAuto" disabled class="secondary">Auto</button>
+      <button id="btnStop" disabled class="secondary">Detener</button>
+    </div>
 
-      <h2>Checkpoints (7 cartas)</h2>
-      <div id="checkpoints" class="checkpoints"></div>
-    </section>
+    <div class="status">
+      <div><strong>Última carta:</strong> <span id="lastCard">—</span></div>
+      <div><strong>Ganador:</strong> <span id="winner">—</span></div>
+    </div>
+  </section>
 
-    <section class="card">
-      <h2>Registro (log)</h2>
-      <div id="log" class="log"></div>
-    </section>
-  </main>
+  <section class="card">
+    <h2>Tablero</h2>
 
+    <div class="boardLayout">
+      <div id="board" class="board"></div>
 
+      <aside class="sideArea">
+        <h2>Mazo</h2>
+        <div class="deckStack">
+          <div class="cardBack big"></div>
+          <div class="deckInfo">
+            Restantes: <span id="remaining2">—</span>
+          </div>
+        </div>
 
-  <script src="app.js"></script>
+        <h2>Última carta</h2>
+        <div id="lastCardFace" class="cardFace big">—</div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Registro</h2>
+    <div id="log" class="log"></div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
 </body>
 </html>
