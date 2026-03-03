@@ -10,7 +10,7 @@
 
 <header class="container">
   <h1>🐎 Carrera de Caballos</h1>
-  <p class="muted">Baraja Española</p>
+  <p class="muted">Baraja Española — tablero alineado por cartas + mazo</p>
 </header>
 
 <main class="container grid">
@@ -34,6 +34,7 @@
 
     <hr/>
 
+    <h2>Acciones</h2>
     <div class="row gap">
       <button id="btnDraw" disabled>Robar carta</button>
       <button id="btnAuto" disabled class="secondary">Auto</button>
@@ -57,7 +58,7 @@
         <div class="deckStack">
           <div class="cardBack big"></div>
           <div class="deckInfo">
-            Restantes: <span id="remaining2">—</span>
+            <div><strong>Restantes:</strong> <span id="remaining2">—</span></div>
           </div>
         </div>
 
@@ -69,7 +70,7 @@
 
   <section class="card">
     <h2>Registro</h2>
-    <div id="log" class="log"></div>
+    <div id="log" class="log">— Inicia un juego —</div>
   </section>
 
 </main>
