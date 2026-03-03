@@ -16,19 +16,21 @@ body{
   background: linear-gradient(180deg,var(--felt),var(--felt2));
 }
 
-.container{max-width:1100px;margin:auto;padding:16px;}
-.grid{display:grid;gap:16px;grid-template-columns:1fr 2fr 1fr;}
-@media (max-width: 980px){ .grid{grid-template-columns:1fr;} }
+.container{max-width:1400px;margin:auto;padding:16px;}
 
-.card{
-  background:rgba(0,0,0,.2);
-  border:1px solid rgba(255,255,255,.12);
-  padding:16px;
-  border-radius:16px;
+.grid{
+  display:grid;
+  gap:16px;
+  grid-template-columns:320px minmax(0,1fr) 360px;
 }
 
-h1{ margin: 6px 0 4px; }
-.muted{ opacity:.8; }
+.card{
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.15);
+  padding:16px;
+  border-radius:16px;
+  min-width:0;
+}
 
 button{
   padding:10px 12px;
@@ -38,90 +40,77 @@ button{
   font-weight:800;
   cursor:pointer;
 }
-button.secondary{background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.12);}
-button:disabled{opacity:.5;cursor:not-allowed;}
-
-.row{display:flex;justify-content:space-between;align-items:center;margin:8px 0; gap:10px;}
-.gap{justify-content:flex-start;}
-
-select{
-  padding:8px 10px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.10);
+button.secondary{
+  background:rgba(255,255,255,.15);
   color:white;
 }
+button:disabled{opacity:.5;cursor:not-allowed;}
+
+.row{display:flex;justify-content:space-between;align-items:center;margin:8px 0;}
+.gap{gap:8px;justify-content:flex-start;}
 
 .status{
   margin-top:12px;
   padding:10px;
   border-radius:12px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.15);
+  border:1px solid rgba(255,255,255,.15);
+  background:rgba(0,0,0,.2);
 }
 
-/* ===== Tablero vertical alineado ===== */
+/* TABLERO */
 .boardLayout{
   display:grid;
-  grid-template-columns:1fr 250px;
+  grid-template-columns:minmax(0,1fr) 260px;
   gap:16px;
-  align-items:start;
 }
-@media (max-width: 980px){ .boardLayout{grid-template-columns:1fr;} }
 
 .board{
-  background:rgba(255,255,255,.05);
-  padding:12px;
+  padding:10px;
   border-radius:12px;
-  border:1px solid rgba(255,255,255,.10);
-  overflow-x:auto;
+  border:1px solid rgba(255,255,255,.15);
+  overflow:visible;
 }
 
 .boardGrid{
   display:grid;
   gap:6px;
-  min-width: 720px;
+  width:100%;
 }
 
 .hcell{
-  height:44px;
+  height:42px;
   display:grid;
   place-items:center;
-  border:1px solid rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.15);
   border-radius:12px;
-  background:rgba(0,0,0,.15);
-  font-weight:800;
+  background:rgba(0,0,0,.2);
+  font-weight:700;
+  font-size:14px;
 }
 
 .bcell{
-  height:60px;
+  height:55px;
   display:grid;
   place-items:center;
-  border:1px solid rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.15);
   border-radius:12px;
-  background:rgba(255,255,255,.06);
+  background:rgba(255,255,255,.07);
 }
 
-.horsePawn{ font-size:22px; }
+.horsePawn{font-size:20px;}
 
-/* Checkpoint card cell */
 .cpCard{
-  width:120px;
-  height:52px;
-  border-radius:12px;
+  width:100px;
+  height:45px;
+  border-radius:10px;
   display:grid;
   place-items:center;
-  font-weight:900;
-  padding:6px;
-  text-align:center;
-  line-height:1.05;
-  border:2px solid rgba(0,0,0,.55);
+  font-weight:700;
+  font-size:12px;
 }
 
 .cpCard.hidden{
-  background: repeating-linear-gradient(45deg,#c7a24a,#c7a24a 10px,#333 10px,#333 20px);
-  color:white;
-  border-color: rgba(255,255,255,.22);
+  background:repeating-linear-gradient(45deg,#c7a24a,#c7a24a 10px,#333 10px,#333 20px);
 }
 
 .cpCard.revealed{
@@ -129,28 +118,18 @@ select{
   color:var(--ink);
 }
 
-/* Side */
+/* MAZO */
 .sideArea{
-  background:rgba(0,0,0,.18);
+  background:rgba(0,0,0,.2);
   padding:12px;
   border-radius:12px;
-  border:1px solid rgba(255,255,255,.10);
-}
-
-.deckStack{ display:grid; gap:10px; }
-
-.deckInfo{
-  padding:10px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.12);
+  border:1px solid rgba(255,255,255,.15);
 }
 
 .cardBack{
   border-radius:12px;
-  background: repeating-linear-gradient(45deg,#c7a24a,#c7a24a 10px,#333 10px,#333 20px);
-  border:2px solid rgba(255,255,255,.18);
-  box-shadow: 0 12px 20px rgba(0,0,0,.25);
+  background:repeating-linear-gradient(45deg,#c7a24a,#c7a24a 10px,#333 10px,#333 20px);
+  border:2px solid rgba(255,255,255,.2);
 }
 
 .cardFace{
@@ -159,26 +138,17 @@ select{
   color:var(--ink);
   display:grid;
   place-items:center;
-  font-weight:900;
+  font-weight:800;
   padding:10px;
-  text-align:center;
-  line-height:1.1;
-  border:2px solid rgba(0,0,0,.45);
-  box-shadow: 0 12px 20px rgba(0,0,0,.25);
 }
 
-.big{width:200px;height:130px;}
+.big{width:100%;max-width:220px;height:130px;}
 
-/* Log */
 .log{
-  height:400px;
+  height:420px;
   overflow:auto;
   background:linear-gradient(var(--paper),var(--paper2));
   color:var(--ink);
   padding:10px;
   border-radius:12px;
-  border:2px solid rgba(0,0,0,.35);
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-size: 12.5px;
-  line-height: 1.45;
 }

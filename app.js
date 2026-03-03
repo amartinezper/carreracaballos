@@ -1,15 +1,12 @@
-// ===== Modelo =====
 const SUITS = ["oros", "copas", "espadas", "bastos"];
 const LABEL = { oros: "Oros", copas: "Copas", espadas: "Espadas", bastos: "Bastos" };
 const EMOJI = { oros: "🟡", copas: "🍷", espadas: "⚔️", bastos: "🪵" };
-
-const TRACK_LEN = 7; // meta
-const CHECKPOINTS = 7;
+const TRACK_LEN = 7;
 
 let state = null;
 let autoTimer = null;
 
-// ===== UI refs =====
+// UI
 const elPlayers = document.getElementById("playersSelect");
 const btnStart = document.getElementById("btnStart");
 const btnReset = document.getElementById("btnReset");
@@ -21,10 +18,10 @@ const elBoard = document.getElementById("board");
 const elLog = document.getElementById("log");
 const elLast = document.getElementById("lastCard");
 const elWinner = document.getElementById("winner");
-const elRemaining2 = document.getElementById("remaining2");
+const elRemaining = document.getElementById("remaining2");
 const elLastFace = document.getElementById("lastCardFace");
 
-// ===== Utilidades =====
+// Utils
 function shuffleInPlace(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -33,7 +30,7 @@ function shuffleInPlace(arr) {
 }
 
 function createDeck() {
-  // baraja española 40: 1-7,10-12; quitamos 11 (caballo), y 8-9 no existen => 36 cartas
+  // Baraja española sin caballos (11) y sin 8-9 => 36 cartas
   const values = [1,2,3,4,5,6,7,10,12];
   const deck = [];
   for (const s of SUITS) {
@@ -49,6 +46,16 @@ function stopAuto() {
   updateButtons();
 }
 
+function startAuto() {
+  if (!state || state.winner) return;
+  stopAuto();
+  autoTimer = setInterval(() => {
+    if (!state || state.winner) { stopAuto(); return; }
+    drawCard();
+  }, 450);
+  updateButtons();
+}
+
 function updateButtons() {
   const running = autoTimer !== null;
   const hasGame = !!state;
@@ -59,28 +66,21 @@ function updateButtons() {
   btnStop.disabled = !hasGame || !running;
 }
 
-// ===== Juego =====
-function initGame(numPlayers) {
+// Game
+function initGame(n) {
   stopAuto();
 
-  if (![2,3,4].includes(numPlayers)) {
-    alert("Jugadores inválidos (2 a 4).");
-    return;
-  }
-
-  const players = SUITS.slice(0, numPlayers);
+  const players = SUITS.slice(0, n);
   const deck = createDeck();
 
-  // checkpoints (7 cartas boca abajo)
   const checkpoints = [];
-  for (let i = 1; i <= CHECKPOINTS; i++) {
+  for (let i = 1; i <= 7; i++) {
     const c = deck.pop();
-    if (!c) throw new Error("No hay suficientes cartas para checkpoints.");
     checkpoints.push({ index: i, card: c, revealed: false });
   }
 
   const horses = {};
-  for (const s of players) horses[s] = { pos: 0 };
+  players.forEach(s => horses[s] = { pos: 0 });
 
   state = {
     players,
@@ -89,7 +89,7 @@ function initGame(numPlayers) {
     horses,
     last: null,
     winner: null,
-    log: [`🎲 Juego iniciado con ${numPlayers} jugador(es): ${players.map(p=>LABEL[p]).join(", ")}`]
+    log: [`🎲 Juego iniciado con ${n} jugador(es): ${players.map(p=>LABEL[p]).join(", ")}`]
   };
 
   updateButtons();
@@ -97,7 +97,6 @@ function initGame(numPlayers) {
 }
 
 function allPassed(checkpointIndex) {
-  // todos los caballos activos han alcanzado/pasado esa casilla
   return state.players.every(s => state.horses[s].pos >= checkpointIndex);
 }
 
@@ -110,9 +109,9 @@ function revealIfNeeded() {
       if (state.players.includes(suit)) {
         const before = state.horses[suit].pos;
         state.horses[suit].pos = Math.max(0, before - 1);
-        state.log.push(`📌 Se revela Carta ${cp.index}: ${cp.card.label}. ${LABEL[suit]} retrocede ( ${before} → ${state.horses[suit].pos} ).`);
+        state.log.push(`📌 Se revela Carta ${cp.index}: ${cp.card.label}. ${LABEL[suit]} retrocede (${before} → ${state.horses[suit].pos}).`);
       } else {
-        state.log.push(`📌 Se revela Carta ${cp.index}: ${cp.card.label}. (palo no activo)`);
+        state.log.push(`📌 Se revela Carta ${cp.index}: ${cp.card.label}. (palo no activo).`);
       }
     }
   }
@@ -145,9 +144,9 @@ function drawCard() {
   if (state.players.includes(c.suit)) {
     const before = state.horses[c.suit].pos;
     state.horses[c.suit].pos = before + 1;
-    state.log.push(`🃏 Sale: ${c.label}. Avanza ${LABEL[c.suit]} ( ${before} → ${state.horses[c.suit].pos} ).`);
+    state.log.push(`🃏 Sale: ${c.label}. Avanza ${LABEL[c.suit]} (${before} → ${state.horses[c.suit].pos}).`);
   } else {
-    state.log.push(`🃏 Sale: ${c.label}. (palo no activo, se ignora).`);
+    state.log.push(`🃏 Sale: ${c.label}. (palo no activo).`);
   }
 
   revealIfNeeded();
@@ -155,62 +154,49 @@ function drawCard() {
   render();
 }
 
-function startAuto() {
-  if (!state || state.winner) return;
-  stopAuto();
-  autoTimer = setInterval(() => {
-    if (!state || state.winner) { stopAuto(); return; }
-    drawCard();
-  }, 450);
-  updateButtons();
-}
-
-// ===== Render =====
+// Render
 function escapeHtml(s) {
   return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
 
 function render() {
-  // render seguro si no hay juego
   if (!state) {
     elBoard.innerHTML = "";
     elLast.textContent = "—";
     elWinner.textContent = "—";
-    elRemaining2.textContent = "—";
+    elRemaining.textContent = "—";
     elLastFace.textContent = "—";
     elLog.textContent = "— Inicia un juego —";
     updateButtons();
     return;
   }
 
-  // tablero: columnas = cartas + N caballos
   const grid = document.createElement("div");
   grid.className = "boardGrid";
-  grid.style.gridTemplateColumns = `140px repeat(${state.players.length}, 1fr)`;
+  grid.style.gridTemplateColumns = `120px repeat(${state.players.length}, 1fr)`;
 
-  // header
-  const h0 = document.createElement("div");
-  h0.className = "hcell";
-  h0.textContent = "Cartas";
-  grid.appendChild(h0);
+  // Header
+  const headerLeft = document.createElement("div");
+  headerLeft.className = "hcell";
+  headerLeft.textContent = "Cartas";
+  grid.appendChild(headerLeft);
 
   for (const s of state.players) {
-    const hc = document.createElement("div");
-    hc.className = "hcell";
-    hc.textContent = `${EMOJI[s]} ${LABEL[s]}`;
-    grid.appendChild(hc);
+    const h = document.createElement("div");
+    h.className = "hcell";
+    h.textContent = `${EMOJI[s]} ${LABEL[s]}`;
+    grid.appendChild(h);
   }
 
-  // filas (7..0) para que suban visualmente
+  // Rows 7..0
   for (let row = TRACK_LEN; row >= 0; row--) {
-    // celda izquierda (carta)
     const left = document.createElement("div");
     left.className = "bcell";
 
     if (row === 0) {
       left.textContent = "Salida";
     } else {
-      const cp = state.checkpoints[row - 1]; // carta 1 está en índice 0
+      const cp = state.checkpoints[row - 1];
       const card = document.createElement("div");
       card.className = `cpCard ${cp.revealed ? "revealed" : "hidden"}`;
       card.textContent = cp.revealed ? cp.card.label : `Carta ${row}`;
@@ -218,7 +204,6 @@ function render() {
     }
     grid.appendChild(left);
 
-    // columnas caballos
     for (const s of state.players) {
       const cell = document.createElement("div");
       cell.className = "bcell";
@@ -237,7 +222,7 @@ function render() {
 
   elLast.textContent = state.last ? state.last.label : "—";
   elWinner.textContent = state.winner ? `${LABEL[state.winner]} ${EMOJI[state.winner]}` : "—";
-  elRemaining2.textContent = String(state.deck.length);
+  elRemaining.textContent = String(state.deck.length);
   elLastFace.textContent = state.last ? state.last.label : "—";
 
   elLog.innerHTML = state.log.slice().reverse().map(x => `<div>${escapeHtml(x)}</div>`).join("");
@@ -245,12 +230,12 @@ function render() {
   updateButtons();
 }
 
-// ===== Eventos =====
+// Events
 btnStart.addEventListener("click", () => initGame(Number(elPlayers.value)));
 btnReset.addEventListener("click", () => { stopAuto(); state = null; render(); });
 btnDraw.addEventListener("click", () => drawCard());
 btnAuto.addEventListener("click", () => startAuto());
 btnStop.addEventListener("click", () => stopAuto());
 
-// primer render
+// initial
 render();
