@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Carrera de Caballos - Baraja Española</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="container">
+    <h1>🐎 Carrera de Caballos (Baraja Española)</h1>
+    <p class="muted">Automatización del juego: 2–4 jugadores, 7 checkpoints, avance por palo, retroceso al revelar.</p>
+  </header>
+
+  <main class="container grid">
+    <section class="card">
+      <h2>Configuración</h2>
+
+      <label class="row">
+        <span>Número de jugadores</span>
+        <select id="playersSelect">
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4" selected>4</option>
+        </select>
+      </label>
+
+      <div class="row gap">
+        <button id="btnStart">Iniciar juego</button>
+        <button id="btnReset" class="secondary">Reiniciar</button>
+      </div>
+
+      <hr />
+
+      <h2>Acciones</h2>
+      <div class="row gap">
+        <button id="btnDraw" disabled>Robar carta</button>
+        <button id="btnAuto" disabled class="secondary">Auto jugar</button>
+        <button id="btnStop" disabled class="secondary">Detener</button>
+      </div>
+
+      <div class="status">
+        <div><strong>Última carta:</strong> <span id="lastCard">—</span></div>
+        <div><strong>Ganador:</strong> <span id="winner">—</span></div>
+        <div><strong>Cartas restantes:</strong> <span id="remaining">—</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Pista</h2>
+      <div id="track" class="track"></div>
+
+      <h2>Checkpoints (7 cartas)</h2>
+      <div id="checkpoints" class="checkpoints"></div>
+    </section>
+
+    <section class="card">
+      <h2>Registro (log)</h2>
+      <div id="log" class="log"></div>
+    </section>
+  </main>
+
+
+
+  <script src="app.js"></script>
+</body>
+</html>
