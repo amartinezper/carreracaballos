@@ -8,6 +8,8 @@ let me = null;
 let socket = null;
 let snapshot = { players: [], canStart: false, game: null };
 
+const elAuthScreen = document.getElementById("authScreen");
+const elGameScreen = document.getElementById("gameScreen");
 const elAuthBox = document.getElementById("authBox");
 const elProfileBox = document.getElementById("profileBox");
 const elUsername = document.getElementById("username");
@@ -59,12 +61,16 @@ function addLog(line) {
 
 function updateAuthView() {
   const logged = !!me;
+  elAuthScreen.classList.toggle("hidden", logged);
+  elGameScreen.classList.toggle("hidden", !logged);
   elAuthBox.classList.toggle("hidden", logged);
   elProfileBox.classList.toggle("hidden", !logged);
   if (logged) {
     elMeUser.textContent = me.username;
     elMePoints.textContent = String(me.points);
   } else {
+    elUsername.value = "";
+    elPassword.value = "";
     elMeUser.textContent = "-";
     elMePoints.textContent = "-";
   }

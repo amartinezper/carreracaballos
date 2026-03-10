@@ -7,76 +7,90 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="container">
-    <h1>Carrera de Caballos - 4 Jugadores</h1>
-    <p class="subtitle">Registro con puntos, apuesta obligatoria y juego en tiempo real</p>
-  </header>
+  <section id="authScreen" class="screen authScreen">
+    <div class="authWrap">
+      <div class="authCard">
+        <h1>Carrera de Caballos</h1>
+        <p class="subtitle">Multijugador en tiempo real para 4 jugadores</p>
 
-  <main class="container grid">
-    <section class="card">
-      <h2>Cuenta</h2>
+        <div id="authBox" class="stack">
+          <label class="fieldLabel" for="username">Usuario</label>
+          <input id="username" type="text" placeholder="Ingresa tu usuario" autocomplete="username" />
 
-      <div id="authBox" class="stack">
-        <input id="username" type="text" placeholder="Usuario" />
-        <input id="password" type="password" placeholder="Contrasena" />
-        <div class="row gap">
-          <button id="btnRegister">Registrarse</button>
-          <button id="btnLogin" class="secondary">Entrar</button>
+          <label class="fieldLabel" for="password">Contrasena</label>
+          <input id="password" type="password" placeholder="Ingresa tu contrasena" autocomplete="current-password" />
+
+          <div class="row authActions">
+            <button id="btnLogin">Entrar</button>
+            <button id="btnRegister" class="secondary">Registrarse</button>
+          </div>
+        </div>
+
+        <div class="authFoot">
+          Cada usuario nuevo recibe 1000 puntos iniciales.
         </div>
       </div>
+    </div>
+  </section>
 
-      <div id="profileBox" class="hidden">
-        <div class="status">
-          <div><strong>Usuario:</strong> <span id="meUser">-</span></div>
-          <div><strong>Puntos:</strong> <span id="mePoints">-</span></div>
+  <section id="gameScreen" class="screen hidden">
+    <header class="container topbar">
+      <div>
+        <h2 class="topTitle">Carrera de Caballos - Sala Activa</h2>
+        <p class="subtitle">Apuesta obligatoria, premio x5 al ganador</p>
+      </div>
+      <div id="profileBox" class="profilePill">
+        <span><strong>Usuario:</strong> <span id="meUser">-</span></span>
+        <span><strong>Puntos:</strong> <span id="mePoints">-</span></span>
+        <button id="btnBuy" class="secondary">Comprar 1000 puntos</button>
+        <button id="btnLogout" class="danger">Salir</button>
+      </div>
+    </header>
+
+    <main class="container grid">
+      <section class="card">
+        <h3>Jugadores conectados</h3>
+        <p class="hint">La partida solo inicia con 4 jugadores, todos con apuesta definida y saldo suficiente.</p>
+        <div id="playersList" class="status">Sin jugadores conectados.</div>
+      </section>
+
+      <section class="card">
+        <h3>Partida</h3>
+
+        <div class="row">
+          <label class="fieldLabel" for="betInput">Apuesta por partida</label>
+          <input id="betInput" type="number" min="1" step="1" value="100" />
         </div>
-        <div class="row gap">
-          <button id="btnBuy" class="secondary">Comprar 1000 puntos (10000 pesos)</button>
-          <button id="btnLogout" class="secondary danger">Salir</button>
+
+        <div class="row gap actionsWrap">
+          <button id="btnSetBet">Fijar apuesta</button>
+          <button id="btnStart" disabled>Iniciar partida</button>
+          <button id="btnDraw" disabled>Robar carta</button>
+          <button id="btnAuto" disabled class="secondary">Auto</button>
+          <button id="btnStop" disabled class="secondary">Detener</button>
         </div>
-      </div>
 
-      <h2>Sala</h2>
-      <p class="hint">Deben conectarse exactamente 4 usuarios en dispositivos diferentes.</p>
-      <div id="playersList" class="status">Sin jugadores conectados.</div>
-    </section>
+        <div class="status metrics">
+          <div><strong>Ultima carta:</strong> <span id="lastCard">-</span></div>
+          <div><strong>Ganador:</strong> <span id="winner">-</span></div>
+          <div><strong>Restantes:</strong> <span id="remaining2">-</span></div>
+        </div>
 
-    <section class="card">
-      <h2>Partida</h2>
-      <div class="row">
-        <label for="betInput">Apuesta por partida</label>
-        <input id="betInput" type="number" min="1" step="1" value="100" />
-      </div>
-      <div class="row gap">
-        <button id="btnSetBet">Fijar apuesta</button>
-        <button id="btnStart" disabled>Iniciar partida</button>
-      </div>
-      <div class="row gap">
-        <button id="btnDraw" disabled>Robar carta</button>
-        <button id="btnAuto" disabled class="secondary">Auto</button>
-        <button id="btnStop" disabled class="secondary">Detener</button>
-      </div>
+        <div class="boardLayout">
+          <div id="board" class="board"></div>
+          <aside class="sideArea">
+            <h3>Ultima carta</h3>
+            <div id="lastCardFace" class="cardFace big">-</div>
+          </aside>
+        </div>
+      </section>
 
-      <div class="status">
-        <div><strong>Ultima carta:</strong> <span id="lastCard">-</span></div>
-        <div><strong>Ganador:</strong> <span id="winner">-</span></div>
-        <div><strong>Restantes:</strong> <span id="remaining2">-</span></div>
-      </div>
-
-      <div class="boardLayout">
-        <div id="board" class="board"></div>
-        <aside class="sideArea">
-          <h3>Ultima carta</h3>
-          <div id="lastCardFace" class="cardFace big">-</div>
-        </aside>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2>Registro de eventos</h2>
-      <div id="log" class="log">Inicia sesion para entrar a la sala.</div>
-    </section>
-  </main>
+      <section class="card">
+        <h3>Registro de eventos</h3>
+        <div id="log" class="log">Inicia sesion para entrar a la sala.</div>
+      </section>
+    </main>
+  </section>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="app.js"></script>
