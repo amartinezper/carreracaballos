@@ -1,5 +1,6 @@
 ﻿const path = require("node:path");
 const crypto = require("node:crypto");
+const fs = require("node:fs");
 const express = require("express");
 const http = require("node:http");
 const { Server } = require("socket.io");
@@ -103,6 +104,7 @@ function gameSnapshot() {
 }
 
 async function canStart() {
+  if (room.game && !room.game.winner) return false;
   if (room.players.length !== 4) return false;
   for (const p of room.players) {
     if (!p.bet || p.bet <= 0) return false;
@@ -110,6 +112,24 @@ async function canStart() {
     if (!user || user.points < p.bet) return false;
   }
   return true;
+}
+
+async function chargeBets() {
+  await db.exec("BEGIN IMMEDIATE TRANSACTION");
+  try {
+    for (const p of room.players) {
+      const user = await getUserById(p.userId);
+      if (!user || user.points < p.bet) {
+        throw new Error(`Puntos insuficientes para ${p.username}`);
+      }
+      await db.run("UPDATE users SET points = points - ? WHERE id = ?", [p.bet, p.userId]);
+    }
+    await db.exec("COMMIT");
+    return true;
+  } catch (err) {
+    await db.exec("ROLLBACK");
+    throw err;
+  }
 }
 
 async function broadcastSnapshot(io) {
@@ -184,11 +204,16 @@ async function drawCard(io) {
 
 async function startGame(io) {
   if (!(await canStart())) return;
+  if (room.game && !room.game.winner) return;
 
   stopAuto();
 
-  for (const p of room.players) {
-    await updateUserPoints(p.userId, -p.bet);
+  try {
+    await chargeBets();
+  } catch (err) {
+    io.emit("event", `No se pudo iniciar la partida: ${err.message}`);
+    await broadcastSnapshot(io);
+    return;
   }
 
   const deck = createDeck();
@@ -209,7 +234,10 @@ async function startGame(io) {
     last: null,
     winner: null,
     auto: false,
-    log: ["Partida iniciada. Se desconto la apuesta a los 4 jugadores."],
+    log: [
+      "Partida iniciada. Se desconto la apuesta a los 4 jugadores.",
+      "Regla de pago: ganador recibe apuesta x5.",
+    ],
   };
 
   io.emit("event", "Partida iniciada con 4 jugadores.");
@@ -218,6 +246,7 @@ async function startGame(io) {
 
 async function bootstrap() {
   const sqlitePath = process.env.SQLITE_PATH || path.join(__dirname, "data.sqlite");
+  fs.mkdirSync(path.dirname(sqlitePath), { recursive: true });
   db = await open({
     filename: sqlitePath,
     driver: sqlite3.Database,

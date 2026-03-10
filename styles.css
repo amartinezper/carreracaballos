@@ -31,6 +31,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 16px;
   border-radius: 16px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 h1 { margin: 6px 0 2px; }
@@ -106,6 +108,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   border: 1px solid rgba(255, 255, 255, 0.15);
   background: rgba(255, 255, 255, 0.05);
   min-width: 0;
+  overflow: auto;
 }
 
 .boardGrid {
@@ -129,6 +132,9 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   font-size: 13px;
   text-align: center;
   padding: 4px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.1;
 }
 
 .bcell {
@@ -136,7 +142,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   background: rgba(255, 255, 255, 0.07);
 }
 
-.horsePawn { font-size: 19px; }
+.horsePawn {
+  font-size: 22px;
+  line-height: 1;
+}
 
 .cpCard {
   width: 110px;
@@ -202,6 +211,22 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   padding: 8px;
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.06);
+  overflow-wrap: anywhere;
+}
+
+#betInput {
+  width: 140px;
+  max-width: 100%;
+}
+
+@media (max-width: 1280px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .grid > .card:last-child {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 1050px) {

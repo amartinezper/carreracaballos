@@ -130,7 +130,7 @@ function renderBoard(game) {
       if (game.horses[p.suit].pos === row) {
         const pawn = document.createElement("div");
         pawn.className = "horsePawn";
-        pawn.textContent = "H";
+        pawn.textContent = "🐎";
         cell.appendChild(pawn);
       }
       grid.appendChild(cell);
