@@ -1,15 +1,28 @@
-const SUITS = ["oros", "copas", "espadas", "bastos"];
+﻿const SUITS = ["oros", "copas", "espadas", "bastos"];
 const LABEL = { oros: "Oros", copas: "Copas", espadas: "Espadas", bastos: "Bastos" };
-const EMOJI = { oros: "🟡", copas: "🍷", espadas: "⚔️", bastos: "🪵" };
+const EMOJI = { oros: "O", copas: "C", espadas: "E", bastos: "B" };
 const TRACK_LEN = 7;
 
-let state = null;
-let autoTimer = null;
+let token = localStorage.getItem("token") || "";
+let me = null;
+let socket = null;
+let snapshot = { players: [], canStart: false, game: null };
 
-// UI
-const elPlayers = document.getElementById("playersSelect");
+const elAuthBox = document.getElementById("authBox");
+const elProfileBox = document.getElementById("profileBox");
+const elUsername = document.getElementById("username");
+const elPassword = document.getElementById("password");
+const btnRegister = document.getElementById("btnRegister");
+const btnLogin = document.getElementById("btnLogin");
+const btnLogout = document.getElementById("btnLogout");
+const btnBuy = document.getElementById("btnBuy");
+
+const elMeUser = document.getElementById("meUser");
+const elMePoints = document.getElementById("mePoints");
+const elPlayersList = document.getElementById("playersList");
+const elBet = document.getElementById("betInput");
+const btnSetBet = document.getElementById("btnSetBet");
 const btnStart = document.getElementById("btnStart");
-const btnReset = document.getElementById("btnReset");
 const btnDraw = document.getElementById("btnDraw");
 const btnAuto = document.getElementById("btnAuto");
 const btnStop = document.getElementById("btnStop");
@@ -21,182 +34,89 @@ const elWinner = document.getElementById("winner");
 const elRemaining = document.getElementById("remaining2");
 const elLastFace = document.getElementById("lastCardFace");
 
-// Utils
-function shuffleInPlace(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-}
-
-function createDeck() {
-  // Baraja española sin caballos (11) y sin 8-9 => 36 cartas
-  const values = [1,2,3,4,5,6,7,10,12];
-  const deck = [];
-  for (const s of SUITS) {
-    for (const v of values) deck.push({ suit: s, label: `${v} de ${LABEL[s]}` });
-  }
-  shuffleInPlace(deck);
-  return deck;
-}
-
-function stopAuto() {
-  if (autoTimer !== null) clearInterval(autoTimer);
-  autoTimer = null;
-  updateButtons();
-}
-
-function startAuto() {
-  if (!state || state.winner) return;
-  stopAuto();
-  autoTimer = setInterval(() => {
-    if (!state || state.winner) { stopAuto(); return; }
-    drawCard();
-  }, 450);
-  updateButtons();
-}
-
-function updateButtons() {
-  const running = autoTimer !== null;
-  const hasGame = !!state;
-  const finished = !!state?.winner;
-
-  btnDraw.disabled = !hasGame || finished || running;
-  btnAuto.disabled = !hasGame || finished || running;
-  btnStop.disabled = !hasGame || !running;
-}
-
-// Game
-function initGame(n) {
-  stopAuto();
-
-  const players = SUITS.slice(0, n);
-  const deck = createDeck();
-
-  const checkpoints = [];
-  for (let i = 1; i <= 7; i++) {
-    const c = deck.pop();
-    checkpoints.push({ index: i, card: c, revealed: false });
-  }
-
-  const horses = {};
-  players.forEach(s => horses[s] = { pos: 0 });
-
-  state = {
-    players,
-    deck,
-    checkpoints,
-    horses,
-    last: null,
-    winner: null,
-    log: [`🎲 Juego iniciado con ${n} jugador(es): ${players.map(p=>LABEL[p]).join(", ")}`]
-  };
-
-  updateButtons();
-  render();
-}
-
-function allPassed(checkpointIndex) {
-  return state.players.every(s => state.horses[s].pos >= checkpointIndex);
-}
-
-function revealIfNeeded() {
-  for (const cp of state.checkpoints) {
-    if (!cp.revealed && allPassed(cp.index)) {
-      cp.revealed = true;
-
-      const suit = cp.card.suit;
-      if (state.players.includes(suit)) {
-        const before = state.horses[suit].pos;
-        state.horses[suit].pos = Math.max(0, before - 1);
-        state.log.push(`📌 Se revela Carta ${cp.index}: ${cp.card.label}. ${LABEL[suit]} retrocede (${before} → ${state.horses[suit].pos}).`);
-      } else {
-        state.log.push(`📌 Se revela Carta ${cp.index}: ${cp.card.label}. (palo no activo).`);
-      }
-    }
-  }
-}
-
-function checkWin() {
-  for (const s of state.players) {
-    if (state.horses[s].pos >= TRACK_LEN) {
-      state.winner = s;
-      state.log.push(`🏁 ¡Gana ${LABEL[s]}!`);
-      stopAuto();
-      return;
-    }
-  }
-}
-
-function drawCard() {
-  if (!state || state.winner) return;
-
-  const c = state.deck.pop();
-  if (!c) {
-    state.log.push("🧯 Se acabó el mazo. Fin sin ganador.");
-    stopAuto();
-    render();
-    return;
-  }
-
-  state.last = c;
-
-  if (state.players.includes(c.suit)) {
-    const before = state.horses[c.suit].pos;
-    state.horses[c.suit].pos = before + 1;
-    state.log.push(`🃏 Sale: ${c.label}. Avanza ${LABEL[c.suit]} (${before} → ${state.horses[c.suit].pos}).`);
-  } else {
-    state.log.push(`🃏 Sale: ${c.label}. (palo no activo).`);
-  }
-
-  revealIfNeeded();
-  checkWin();
-  render();
-}
-
-// Render
 function escapeHtml(s) {
-  return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  return String(s).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 }
 
-function render() {
-  if (!state) {
+async function api(path, method = "GET", body) {
+  const res = await fetch(path, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Error de servidor");
+  return data;
+}
+
+function addLog(line) {
+  const now = new Date().toLocaleTimeString();
+  elLog.innerHTML = `<div>[${now}] ${escapeHtml(line)}</div>` + elLog.innerHTML;
+}
+
+function updateAuthView() {
+  const logged = !!me;
+  elAuthBox.classList.toggle("hidden", logged);
+  elProfileBox.classList.toggle("hidden", !logged);
+  if (logged) {
+    elMeUser.textContent = me.username;
+    elMePoints.textContent = String(me.points);
+  } else {
+    elMeUser.textContent = "-";
+    elMePoints.textContent = "-";
+  }
+}
+
+function renderPlayers(players) {
+  if (!players.length) {
+    elPlayersList.textContent = "Sin jugadores conectados.";
+    return;
+  }
+  elPlayersList.innerHTML = players
+    .map((p) => {
+      const meTag = me && p.username === me.username ? " (tu)" : "";
+      return `<div class="userchip"><strong>${escapeHtml(p.username)}</strong>${meTag}<br/>Caballo: ${LABEL[p.suit]} | Apuesta: ${p.bet || 0} | Puntos: ${p.points}</div>`;
+    })
+    .join("");
+}
+
+function renderBoard(game) {
+  if (!game) {
     elBoard.innerHTML = "";
-    elLast.textContent = "—";
-    elWinner.textContent = "—";
-    elRemaining.textContent = "—";
-    elLastFace.textContent = "—";
-    elLog.textContent = "— Inicia un juego —";
-    updateButtons();
+    elLast.textContent = "-";
+    elWinner.textContent = "-";
+    elRemaining.textContent = "-";
+    elLastFace.textContent = "-";
     return;
   }
 
+  const players = game.players;
   const grid = document.createElement("div");
   grid.className = "boardGrid";
-  grid.style.gridTemplateColumns = `120px repeat(${state.players.length}, 1fr)`;
+  grid.style.gridTemplateColumns = `120px repeat(${players.length}, 1fr)`;
 
-  // Header
-  const headerLeft = document.createElement("div");
-  headerLeft.className = "hcell";
-  headerLeft.textContent = "Cartas";
-  grid.appendChild(headerLeft);
+  const head = document.createElement("div");
+  head.className = "hcell";
+  head.textContent = "Cartas";
+  grid.appendChild(head);
 
-  for (const s of state.players) {
+  for (const p of players) {
     const h = document.createElement("div");
     h.className = "hcell";
-    h.textContent = `${EMOJI[s]} ${LABEL[s]}`;
+    h.textContent = `${EMOJI[p.suit]} ${p.username}`;
     grid.appendChild(h);
   }
 
-  // Rows 7..0
   for (let row = TRACK_LEN; row >= 0; row--) {
     const left = document.createElement("div");
     left.className = "bcell";
-
     if (row === 0) {
       left.textContent = "Salida";
     } else {
-      const cp = state.checkpoints[row - 1];
+      const cp = game.checkpoints[row - 1];
       const card = document.createElement("div");
       card.className = `cpCard ${cp.revealed ? "revealed" : "hidden"}`;
       card.textContent = cp.revealed ? cp.card.label : `Carta ${row}`;
@@ -204,13 +124,13 @@ function render() {
     }
     grid.appendChild(left);
 
-    for (const s of state.players) {
+    for (const p of players) {
       const cell = document.createElement("div");
       cell.className = "bcell";
-      if (state.horses[s].pos === row) {
+      if (game.horses[p.suit].pos === row) {
         const pawn = document.createElement("div");
         pawn.className = "horsePawn";
-        pawn.textContent = "🐎";
+        pawn.textContent = "H";
         cell.appendChild(pawn);
       }
       grid.appendChild(cell);
@@ -219,23 +139,143 @@ function render() {
 
   elBoard.innerHTML = "";
   elBoard.appendChild(grid);
-
-  elLast.textContent = state.last ? state.last.label : "—";
-  elWinner.textContent = state.winner ? `${LABEL[state.winner]} ${EMOJI[state.winner]}` : "—";
-  elRemaining.textContent = String(state.deck.length);
-  elLastFace.textContent = state.last ? state.last.label : "—";
-
-  elLog.innerHTML = state.log.slice().reverse().map(x => `<div>${escapeHtml(x)}</div>`).join("");
-
-  updateButtons();
+  elLast.textContent = game.last ? game.last.label : "-";
+  elLastFace.textContent = game.last ? game.last.label : "-";
+  elRemaining.textContent = String(game.deckCount);
+  if (game.winner) {
+    elWinner.textContent = `${game.winner.username} (+${game.winner.payout})`;
+  } else {
+    elWinner.textContent = "-";
+  }
 }
 
-// Events
-btnStart.addEventListener("click", () => initGame(Number(elPlayers.value)));
-btnReset.addEventListener("click", () => { stopAuto(); state = null; render(); });
-btnDraw.addEventListener("click", () => drawCard());
-btnAuto.addEventListener("click", () => startAuto());
-btnStop.addEventListener("click", () => stopAuto());
+function updateActionButtons() {
+  const game = snapshot.game;
+  const canAct = !!game && !game.winner;
+  btnDraw.disabled = !canAct || game.auto;
+  btnAuto.disabled = !canAct || game.auto;
+  btnStop.disabled = !canAct || !game.auto;
+  btnStart.disabled = !snapshot.canStart;
+}
 
-// initial
-render();
+function renderSnapshot() {
+  renderPlayers(snapshot.players || []);
+  renderBoard(snapshot.game);
+  updateActionButtons();
+
+  const mine = (snapshot.players || []).find((p) => me && p.username === me.username);
+  if (mine) {
+    me.points = mine.points;
+    updateAuthView();
+  }
+
+  if (snapshot.game?.log?.length) {
+    elLog.innerHTML = snapshot.game.log
+      .slice()
+      .reverse()
+      .map((x) => `<div>${escapeHtml(x)}</div>`)
+      .join("");
+  }
+}
+
+function connectSocket() {
+  if (!token) return;
+  if (socket) socket.disconnect();
+
+  socket = io({ auth: { token } });
+
+  socket.on("connect", () => addLog("Conectado a la sala."));
+  socket.on("snapshot", (data) => {
+    snapshot = data;
+    renderSnapshot();
+  });
+  socket.on("event", (msg) => addLog(msg));
+  socket.on("error_message", (msg) => addLog(`Error: ${msg}`));
+  socket.on("disconnect", () => addLog("Conexion cerrada."));
+}
+
+async function hydrate() {
+  if (!token) {
+    updateAuthView();
+    return;
+  }
+
+  try {
+    const data = await api("/api/me");
+    me = data.user;
+    updateAuthView();
+    connectSocket();
+  } catch {
+    localStorage.removeItem("token");
+    token = "";
+    me = null;
+    updateAuthView();
+  }
+}
+
+btnRegister.addEventListener("click", async () => {
+  try {
+    const username = elUsername.value.trim();
+    const password = elPassword.value.trim();
+    const data = await api("/api/register", "POST", { username, password });
+    token = data.token;
+    localStorage.setItem("token", token);
+    me = data.user;
+    updateAuthView();
+    connectSocket();
+    addLog("Registro completado. Se asignaron 1000 puntos.");
+  } catch (err) {
+    addLog(err.message);
+  }
+});
+
+btnLogin.addEventListener("click", async () => {
+  try {
+    const username = elUsername.value.trim();
+    const password = elPassword.value.trim();
+    const data = await api("/api/login", "POST", { username, password });
+    token = data.token;
+    localStorage.setItem("token", token);
+    me = data.user;
+    updateAuthView();
+    connectSocket();
+    addLog("Sesion iniciada.");
+  } catch (err) {
+    addLog(err.message);
+  }
+});
+
+btnLogout.addEventListener("click", () => {
+  if (socket) socket.disconnect();
+  token = "";
+  me = null;
+  localStorage.removeItem("token");
+  snapshot = { players: [], canStart: false, game: null };
+  updateAuthView();
+  renderSnapshot();
+});
+
+btnBuy.addEventListener("click", async () => {
+  try {
+    const data = await api("/api/buy-points", "POST");
+    me.points = data.points;
+    updateAuthView();
+    addLog(data.message);
+    if (socket) socket.emit("refresh");
+  } catch (err) {
+    addLog(err.message);
+  }
+});
+
+btnSetBet.addEventListener("click", () => {
+  if (!socket) return;
+  const amount = Number(elBet.value);
+  socket.emit("set_bet", { amount });
+});
+
+btnStart.addEventListener("click", () => socket && socket.emit("start_game"));
+btnDraw.addEventListener("click", () => socket && socket.emit("draw_card"));
+btnAuto.addEventListener("click", () => socket && socket.emit("auto_start"));
+btnStop.addEventListener("click", () => socket && socket.emit("auto_stop"));
+
+hydrate();

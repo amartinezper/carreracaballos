@@ -1,79 +1,84 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Carrera de Caballos</title>
+  <title>Carrera de Caballos Multijugador</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <header class="container">
+    <h1>Carrera de Caballos - 4 Jugadores</h1>
+    <p class="subtitle">Registro con puntos, apuesta obligatoria y juego en tiempo real</p>
+  </header>
 
-<header class="container">
-  <h1>🐎 Carrera de Caballos</h1>
-</header>
+  <main class="container grid">
+    <section class="card">
+      <h2>Cuenta</h2>
 
-<main class="container grid">
-
-  <section class="card">
-    <h2>Configuración</h2>
-
-    <div class="row">
-      <span>Jugadores</span>
-      <select id="playersSelect">
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4" selected>4</option>
-      </select>
-    </div>
-
-    <div class="row gap">
-      <button id="btnStart">Iniciar</button>
-      <button id="btnReset" class="secondary">Reiniciar</button>
-    </div>
-
-    <hr/>
-
-    <h2>Acciones</h2>
-    <div class="row gap">
-      <button id="btnDraw" disabled>Robar carta</button>
-      <button id="btnAuto" disabled class="secondary">Auto</button>
-      <button id="btnStop" disabled class="secondary">Detener</button>
-    </div>
-
-    <div class="status">
-      <div><strong>Última carta:</strong> <span id="lastCard">—</span></div>
-      <div><strong>Ganador:</strong> <span id="winner">—</span></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>Tablero</h2>
-
-    <div class="boardLayout">
-      <div id="board" class="board"></div>
-
-      <aside class="sideArea">
-        <h2>Mazo</h2>
-        <div class="deckStack">
-          <div class="cardBack big"></div>
-          <div class="deckInfo">
-            Restantes: <span id="remaining2">—</span>
-          </div>
+      <div id="authBox" class="stack">
+        <input id="username" type="text" placeholder="Usuario" />
+        <input id="password" type="password" placeholder="Contrasena" />
+        <div class="row gap">
+          <button id="btnRegister">Registrarse</button>
+          <button id="btnLogin" class="secondary">Entrar</button>
         </div>
+      </div>
 
-        <h2>Última carta</h2>
-        <div id="lastCardFace" class="cardFace big">—</div>
-      </aside>
-    </div>
-  </section>
+      <div id="profileBox" class="hidden">
+        <div class="status">
+          <div><strong>Usuario:</strong> <span id="meUser">-</span></div>
+          <div><strong>Puntos:</strong> <span id="mePoints">-</span></div>
+        </div>
+        <div class="row gap">
+          <button id="btnBuy" class="secondary">Comprar 1000 puntos (10000 pesos)</button>
+          <button id="btnLogout" class="secondary danger">Salir</button>
+        </div>
+      </div>
 
-  <section class="card">
-    <h2>Registro</h2>
-    <div id="log" class="log">— Inicia un juego —</div>
-  </section>
+      <h2>Sala</h2>
+      <p class="hint">Deben conectarse exactamente 4 usuarios en dispositivos diferentes.</p>
+      <div id="playersList" class="status">Sin jugadores conectados.</div>
+    </section>
 
-</main>
+    <section class="card">
+      <h2>Partida</h2>
+      <div class="row">
+        <label for="betInput">Apuesta por partida</label>
+        <input id="betInput" type="number" min="1" step="1" value="100" />
+      </div>
+      <div class="row gap">
+        <button id="btnSetBet">Fijar apuesta</button>
+        <button id="btnStart" disabled>Iniciar partida</button>
+      </div>
+      <div class="row gap">
+        <button id="btnDraw" disabled>Robar carta</button>
+        <button id="btnAuto" disabled class="secondary">Auto</button>
+        <button id="btnStop" disabled class="secondary">Detener</button>
+      </div>
 
-<script src="app.js"></script>
+      <div class="status">
+        <div><strong>Ultima carta:</strong> <span id="lastCard">-</span></div>
+        <div><strong>Ganador:</strong> <span id="winner">-</span></div>
+        <div><strong>Restantes:</strong> <span id="remaining2">-</span></div>
+      </div>
+
+      <div class="boardLayout">
+        <div id="board" class="board"></div>
+        <aside class="sideArea">
+          <h3>Ultima carta</h3>
+          <div id="lastCardFace" class="cardFace big">-</div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Registro de eventos</h2>
+      <div id="log" class="log">Inicia sesion para entrar a la sala.</div>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,261 +1,232 @@
-:root{
-  --felt:#0f3d2e;
-  --felt2:#0b2d22;
-  --gold:#c7a24a;
-  --paper:#f6f0df;
-  --paper2:#efe5c9;
-  --ink:#1b1b1b;
+﻿:root {
+  --felt: #0f3d2e;
+  --felt2: #0b2d22;
+  --gold: #c7a24a;
+  --paper: #f6f0df;
+  --paper2: #efe5c9;
+  --ink: #1b1b1b;
 }
 
-*{ box-sizing:border-box; }
+* { box-sizing: border-box; }
 
-body{
-  margin:0;
+body {
+  margin: 0;
   font-family: Georgia, serif;
-  color:white;
-  background: linear-gradient(180deg,var(--felt),var(--felt2));
+  color: white;
+  background: linear-gradient(180deg, var(--felt), var(--felt2));
 }
 
-.container{ max-width:1400px; margin:auto; padding:16px; }
+.container { max-width: 1400px; margin: auto; padding: 16px; }
+.subtitle { opacity: 0.9; margin-top: 0; }
 
-/* ===== Desktop layout ===== */
-.grid{
-  display:grid;
-  gap:16px;
-  grid-template-columns:320px minmax(0,1fr) 360px;
-  align-items:start;
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 330px minmax(0, 1fr) 360px;
+  align-items: start;
 }
 
-/* Panels */
-.card{
-  background:rgba(0,0,0,.25);
-  border:1px solid rgba(255,255,255,.15);
-  padding:16px;
-  border-radius:16px;
-  min-width:0; /* important: prevent overflow clipping */
+.card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 16px;
+  border-radius: 16px;
 }
 
-h1{ margin: 6px 0 4px; }
-h2{ margin: 10px 0 10px; }
+h1 { margin: 6px 0 2px; }
+h2 { margin: 10px 0; }
 
-button{
-  padding:10px 12px;
-  border:none;
-  border-radius:10px;
-  background:var(--gold);
-  font-weight:800;
-  cursor:pointer;
-}
-button.secondary{
-  background:rgba(255,255,255,.15);
-  color:white;
-  border: 1px solid rgba(255,255,255,.12);
-}
-button:disabled{ opacity:.5; cursor:not-allowed; }
+.stack { display: grid; gap: 10px; }
+.hidden { display: none; }
+.hint { opacity: 0.88; font-size: 13px; }
 
-.row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:8px 0;
-  gap:10px;
-}
-.gap{ justify-content:flex-start; gap:10px; }
-
-select{
-  padding:8px 10px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.10);
-  color:white;
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.status{
-  margin-top:12px;
-  padding:10px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.15);
-  background:rgba(0,0,0,.20);
+.gap { justify-content: flex-start; }
+
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
 }
 
-/* ===== Tablero + mazo ===== */
-.boardLayout{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 260px;
-  gap:16px;
-  align-items:start;
+input::placeholder { color: rgba(255, 255, 255, 0.72); }
+
+button {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: var(--gold);
+  font-weight: 800;
+  cursor: pointer;
 }
 
-/* Tablero container */
-.board{
-  padding:10px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.15);
-  background:rgba(255,255,255,.05);
-  min-width:0;
-  overflow:visible;
+button.secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* Grid (tablero) */
-.boardGrid{
-  display:grid;
-  gap:6px;
-  width:100%;
-  min-width:0;
+button.danger {
+  background: rgba(220, 60, 60, 0.4);
+  border: 1px solid rgba(255, 100, 100, 0.45);
 }
 
-.hcell{
-  height:42px;
-  display:grid;
-  place-items:center;
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:12px;
-  background:rgba(0,0,0,.20);
-  font-weight:800;
-  font-size:14px;
-  white-space:nowrap;
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.status {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
 }
 
-.bcell{
-  height:55px;
-  display:grid;
-  place-items:center;
-  border:1px solid rgba(255,255,255,.15);
-  border-radius:12px;
-  background:rgba(255,255,255,.07);
+.boardLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 16px;
+  align-items: start;
+  margin-top: 12px;
 }
 
-.horsePawn{ font-size:20px; }
-
-/* Checkpoint card */
-.cpCard{
-  width:100px;
-  height:45px;
-  border-radius:10px;
-  display:grid;
-  place-items:center;
-  font-weight:900;
-  font-size:12px;
-  padding:6px;
-  text-align:center;
-  line-height:1.05;
-  border:2px solid rgba(0,0,0,.45);
+.board {
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  min-width: 0;
 }
 
-.cpCard.hidden{
-  color:white;
-  background:repeating-linear-gradient(45deg,#c7a24a,#c7a24a 10px,#333 10px,#333 20px);
-  border-color: rgba(255,255,255,.18);
+.boardGrid {
+  display: grid;
+  gap: 6px;
+  width: 100%;
 }
 
-.cpCard.revealed{
-  background:linear-gradient(var(--paper),var(--paper2));
-  color:var(--ink);
+.hcell,
+.bcell {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
 }
 
-/* Side area */
-.sideArea{
-  background:rgba(0,0,0,.20);
-  padding:12px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.15);
-  min-width:0;
+.hcell {
+  height: 48px;
+  background: rgba(0, 0, 0, 0.2);
+  font-weight: 800;
+  font-size: 13px;
+  text-align: center;
+  padding: 4px;
 }
 
-.deckStack{ display:grid; gap:10px; }
-
-.deckInfo{
-  padding:10px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.15);
-  background:rgba(0,0,0,.12);
+.bcell {
+  height: 54px;
+  background: rgba(255, 255, 255, 0.07);
 }
 
-.cardBack{
-  border-radius:12px;
-  background:repeating-linear-gradient(45deg,#c7a24a,#c7a24a 10px,#333 10px,#333 20px);
-  border:2px solid rgba(255,255,255,.20);
-  box-shadow: 0 12px 20px rgba(0,0,0,.25);
+.horsePawn { font-size: 19px; }
+
+.cpCard {
+  width: 110px;
+  height: 46px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 11.5px;
+  padding: 6px;
+  text-align: center;
+  line-height: 1.1;
+  border: 2px solid rgba(0, 0, 0, 0.4);
 }
 
-.cardFace{
-  border-radius:12px;
-  background:linear-gradient(var(--paper),var(--paper2));
-  color:var(--ink);
-  display:grid;
-  place-items:center;
-  font-weight:900;
-  padding:10px;
-  text-align:center;
-  line-height:1.1;
-  border:2px solid rgba(0,0,0,.35);
-  box-shadow: 0 12px 20px rgba(0,0,0,.22);
+.cpCard.hidden {
+  color: white;
+  background: repeating-linear-gradient(45deg, #c7a24a, #c7a24a 10px, #333 10px, #333 20px);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
-.big{ width:100%; max-width:220px; height:130px; }
+.cpCard.revealed {
+  background: linear-gradient(var(--paper), var(--paper2));
+  color: var(--ink);
+}
 
-/* Log */
-.log{
-  height:420px;
-  overflow:auto;
-  background:linear-gradient(var(--paper),var(--paper2));
-  color:var(--ink);
-  padding:10px;
-  border-radius:12px;
-  border:2px solid rgba(0,0,0,.30);
-  min-width:0;
-  font-family: ui-monospace, Menlo, Consolas, monospace;
+.sideArea {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.cardFace {
+  border-radius: 12px;
+  background: linear-gradient(var(--paper), var(--paper2));
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  padding: 10px;
+  text-align: center;
+  border: 2px solid rgba(0, 0, 0, 0.35);
+}
+
+.big { width: 100%; min-height: 130px; }
+
+.log {
+  height: 480px;
+  overflow: auto;
+  background: linear-gradient(var(--paper), var(--paper2));
+  color: var(--ink);
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  font-family: Consolas, monospace;
   font-size: 12.5px;
   line-height: 1.45;
 }
 
-/* =========================
-   Responsive (tablet / phone)
-   ========================= */
-
-/* ✅ iOS friendly: switch the whole layout to a single column using flex
-   This prevents the "Registro" card from overlaying other cards on iPhone. */
-@media (max-width: 980px){
-  .grid{
-    display:flex;
-    flex-direction:column;
-    gap:16px;
-  }
-
-  .boardLayout{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-  }
-
-  .sideArea{ width:100%; }
-
-  .big{ max-width: 100%; height: 120px; }
-
-  .log{
-    height: 280px;
-    max-height: 45vh;
-  }
+.userchip {
+  margin: 6px 0;
+  padding: 8px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
 }
 
-/* ✅ phone: board becomes horizontally scrollable, nothing gets cut */
-@media (max-width: 520px){
-  .board{
-    overflow-x:auto;
-    overflow-y:hidden;
+@media (max-width: 1050px) {
+  .grid {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .boardLayout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .log { height: 290px; }
+}
+
+@media (max-width: 560px) {
+  .board {
+    overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 10px;
   }
 
-  .boardGrid{
-    width:max-content; /* allow swipe to see full board */
-  }
-
-  .hcell{ height: 38px; font-size: 13px; }
-  .bcell{ height: 48px; }
-  .cpCard{ width: 92px; height: 42px; font-size: 11px; }
-  .horsePawn{ font-size: 18px; }
-
-  button{ padding: 12px 12px; border-radius: 12px; }
-  select{ padding: 10px 10px; }
+  .boardGrid { width: max-content; }
+  .hcell { height: 40px; }
+  .bcell { height: 46px; }
+  .cpCard { width: 95px; }
 }
